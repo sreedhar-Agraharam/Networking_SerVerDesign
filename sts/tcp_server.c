@@ -32,10 +32,13 @@ setup_tcp_server_communication(){
      * any fd present in this set*/
     fd_set readfds;             
     /*variables to hold server information*/
-    struct sockaddr_in server_addr, /*structure to store the server and client info*/
+    struct sockaddr_in server_addr, /*structure to store the server and client info*/ /*Stores address of server and clients */
                        client_addr;
 
     /*step 2: tcp master socket creation*/
+    /* AF_INET is for saying Address family of internet is IPV4, if its iv6, it has to be AF_INET6 */
+    /*for TCP SOCKET -> SOCK_STREAM, and if UDP SOCKET --> SOCK_DGRAM , Similaraly for TCP SOCKET -> IPPROTO_TCP , for UDP  -> IPPROTO_UDP */
+    /*IPPROTO_TCP says we are using TPC protocol, Actually, SOCK_STREAM and IPPROTO_TCP combined says socket that we are running TPC protocol  */
     if ((master_sock_tcp_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP )) == -1)
     {
         printf("socket creation failed\n");
@@ -48,7 +51,9 @@ setup_tcp_server_communication(){
     
     /*3232249957; //( = 192.168.56.101); Server's IP address, 
     //means, Linux will send all data whose destination address = address of any local interface 
-    //of this machine, in this case it is 192.168.56.101*/
+    //of this machine, in this case it is 192.168.56.101
+    INADDR_ANY mean, IP address of any local interface of the server. We can also specify specific IP address also ex : 3232249957,
+    If you want only that interface as a Gateay out of many interfaces */
     server_addr.sin_addr.s_addr = INADDR_ANY; 
 
     addr_len = sizeof(struct sockaddr);
@@ -66,7 +71,8 @@ setup_tcp_server_communication(){
     }
 
     /*Step 4 : Tell the Linux OS to maintain the queue of max length to Queue incoming
-     * client connections.*/
+     * client connections. i.e if 5 clients say c1,c2,c3,,c5 are trying to connect at same time to server,its fine, they are kept in queue
+      If more client say c1,c2...,c6 are trying to connect at same time, then only till c5 are kept in queue | | | | | | */
     if (listen(master_sock_tcp_fd, 5)<0)  
     {
         printf("listen failed\n");
